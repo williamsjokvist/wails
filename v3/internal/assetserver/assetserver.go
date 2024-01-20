@@ -169,6 +169,7 @@ func (a *AssetServer) AddPluginScript(pluginName string, script string) {
 }
 
 func GetStartURL(userURL string) (string, error) {
+	var startURL = fmt.Sprintf("%s://%s", Schema, Host)
 	devServerURL := GetDevServerURL()
 	if devServerURL != "" {
 		// Parse the port
@@ -180,6 +181,7 @@ func GetStartURL(userURL string) (string, error) {
 		if port != "" {
 			startURL += ":" + port
 		}
+		Host += ":" + port
 	} else {
 		if userURL != "" {
 			// parse the url

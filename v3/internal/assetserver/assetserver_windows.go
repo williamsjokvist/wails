@@ -1,3 +1,4 @@
 package assetserver
 
-var startURL = "http://wails.localhost"
+var Schema = "http"
+var Host = "wails.localhost"
