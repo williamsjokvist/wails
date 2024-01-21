@@ -3,7 +3,6 @@
 package application
 
 import (
-	"errors"
 	"github.com/wailsapp/wails/v3/internal/assetserver"
 	"net/http"
 	"time"
@@ -31,8 +30,7 @@ func (a *App) preRun() error {
 				a.Logger.Info("Retrying...")
 			}
 		}
-		a.Logger.Info("failed!")
-		return errors.New("unable to connect to frontend server. Please check it is running")
+		a.fatal("unable to connect to frontend server. Please check it is running", "FRONTEND_DEVSERVER_URL", frontendURL)
 	}
 	return nil
 }

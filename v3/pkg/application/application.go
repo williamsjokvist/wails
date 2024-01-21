@@ -407,7 +407,7 @@ func (a *App) debug(message string, args ...any) {
 func (a *App) fatal(message string, args ...any) {
 	msg := "A FATAL ERROR HAS OCCURRED: " + message
 	if a.Logger != nil {
-		go a.Logger.Error(msg, args...)
+		a.Logger.Error(msg, args...)
 	} else {
 		println(msg)
 	}

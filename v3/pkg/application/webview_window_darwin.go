@@ -734,7 +734,7 @@ void windowFocus(void *window) {
 */
 import "C"
 import (
-	"net/url"
+	"github.com/wailsapp/wails/v3/internal/assetserver"
 	"sync"
 	"unsafe"
 
@@ -969,15 +969,6 @@ func (w *macosWebviewWindow) execJS(js string) {
 }
 
 func (w *macosWebviewWindow) setURL(uri string) {
-	if uri != "" {
-		parsedURL, err := url.Parse(uri)
-		if err == nil && parsedURL.Scheme == "" && parsedURL.Host == "" {
-			// TODO handle this in a central location, the scheme and host might be platform dependant.
-			parsedURL.Scheme = "wails"
-			parsedURL.Host = "wails"
-			uri = parsedURL.String()
-		}
-	}
 	C.navigationLoadURL(w.nsWindow, C.CString(uri))
 }
 
@@ -1157,9 +1148,11 @@ func (w *macosWebviewWindow) run() {
 		}
 		C.windowCenter(w.nsWindow)
 
-		if options.URL != "" {
-			w.setURL(options.URL)
+		startURL, err := assetserver.GetStartURL(options.URL)
+		if err != nil {
+			globalApplication.fatal(err.Error())
 		}
+		w.setURL(startURL)
 		// We need to wait for the HTML to load before we can execute the javascript
 		w.parent.On(events.Mac.WebViewDidFinishNavigation, func(_ *WindowEvent) {
 			if options.JS != "" {
