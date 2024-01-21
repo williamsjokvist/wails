@@ -80,7 +80,6 @@ func New(appOptions Options) *App {
 		Handler:        appOptions.Assets.Handler,
 		Middleware:     assetserver.Middleware(appOptions.Assets.Middleware),
 		Logger:         result.Logger,
-		IsDebug:        result.isDebugMode,
 		RuntimeHandler: NewMessageProcessor(result.Logger),
 		GetCapabilities: func() []byte {
 			return globalApplication.capabilities.AsBytes()

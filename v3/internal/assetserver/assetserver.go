@@ -145,20 +145,6 @@ func (a *AssetServer) serveError(rw http.ResponseWriter, err error, msg string, 
 	rw.WriteHeader(http.StatusInternalServerError)
 }
 
-func (a *AssetServer) LogDetails() {
-	if a.options.IsDebug {
-		var info = []any{
-			"assetsFS", a.options.Assets != nil,
-			"middleware", a.options.Middleware != nil,
-			"handler", a.options.Handler != nil,
-		}
-		if a.devServerURL != "" {
-			info = append(info, "devServerURL", a.devServerURL)
-		}
-		a.options.Logger.Info("AssetServer Info:", info...)
-	}
-}
-
 func (a *AssetServer) AddPluginScript(pluginName string, script string) {
 	if a.pluginScripts == nil {
 		a.pluginScripts = make(map[string]string)
