@@ -1141,15 +1141,30 @@ func (w *macosWebviewWindow) run() {
 		if err != nil {
 			globalApplication.fatal(err.Error())
 		}
+
 		w.setURL(startURL)
+
 		// We need to wait for the HTML to load before we can execute the javascript
 		w.parent.On(events.Mac.WebViewDidFinishNavigation, func(_ *WindowEvent) {
-			if options.JS != "" {
-				w.execJS(options.JS)
-			}
-			if options.CSS != "" {
-				C.windowInjectCSS(w.nsWindow, C.CString(options.CSS))
-			}
+			InvokeAsync(func() {
+				if options.JS != "" {
+					w.execJS(options.JS)
+				}
+				if options.CSS != "" {
+					C.windowInjectCSS(w.nsWindow, C.CString(options.CSS))
+				}
+				if options.Hidden == false {
+					C.windowShow(w.nsWindow)
+					w.setHasShadow(!options.Mac.DisableShadow)
+				} else {
+					// We have to wait until the window is shown before we can remove the shadow
+					var cancel func()
+					cancel = w.parent.On(events.Mac.WindowDidBecomeKey, func(_ *WindowEvent) {
+						w.setHasShadow(!options.Mac.DisableShadow)
+						cancel()
+					})
+				}
+			})
 		})
 
 		// Translate ShouldClose to common WindowClosing event
@@ -1167,17 +1182,6 @@ func (w *macosWebviewWindow) run() {
 
 		if options.HTML != "" {
 			w.setHTML(options.HTML)
-		}
-		if options.Hidden == false {
-			C.windowShow(w.nsWindow)
-			w.setHasShadow(!options.Mac.DisableShadow)
-		} else {
-			// We have to wait until the window is shown before we can remove the shadow
-			var cancel func()
-			cancel = w.parent.On(events.Mac.WindowDidBecomeKey, func(_ *WindowEvent) {
-				w.setHasShadow(!options.Mac.DisableShadow)
-				cancel()
-			})
 		}
 
 	})
