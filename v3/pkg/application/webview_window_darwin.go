@@ -256,13 +256,6 @@ void windowSetMaxSize(void* nsWindow, int width, int height) {
 	[window setMaxSize:size];
 }
 
-// Enable NSWindow devtools
-void windowEnableDevTools(void* nsWindow) {
-	WebviewWindow* window = (WebviewWindow*)nsWindow;
-	// Enable devtools in webview
-	[window.webView.configuration.preferences setValue:@YES forKey:@"developerExtrasEnabled"];
-}
-
 // windowZoomReset
 void windowZoomReset(void* nsWindow) {
 	WebviewWindow* window = (WebviewWindow*)nsWindow;
@@ -1008,9 +1001,6 @@ func (w *macosWebviewWindow) setMaxSize(width, height int) {
 func (w *macosWebviewWindow) setResizable(resizable bool) {
 	C.windowSetResizable(w.nsWindow, C.bool(resizable))
 }
-func (w *macosWebviewWindow) enableDevTools() {
-	C.windowEnableDevTools(w.nsWindow)
-}
 
 func (w *macosWebviewWindow) size() (int, int) {
 	var width, height C.int
@@ -1100,9 +1090,8 @@ func (w *macosWebviewWindow) run() {
 			w.setMaxSize(options.MaxWidth, options.MaxHeight)
 		}
 		//w.setZoom(options.Zoom)
-		if globalApplication.isDebugMode || options.DevToolsEnabled {
-			w.enableDevTools()
-		}
+		w.enableDevTools()
+
 		w.setBackgroundColour(options.BackgroundColour)
 
 		switch macOptions.Backdrop {
