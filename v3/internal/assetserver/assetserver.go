@@ -3,6 +3,7 @@ package assetserver
 import (
 	"fmt"
 	"html"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -169,8 +170,8 @@ func (a *AssetServer) AddPluginScript(pluginName string, script string) {
 }
 
 func GetStartURL(userURL string) (string, error) {
-	var startURL = fmt.Sprintf("%s://%s", Schema, Host)
 	devServerURL := GetDevServerURL()
+	startURL := baseURL.String()
 	if devServerURL != "" {
 		// Parse the port
 		parsedURL, err := url.Parse(devServerURL)
@@ -179,9 +180,8 @@ func GetStartURL(userURL string) (string, error) {
 		}
 		port := parsedURL.Port()
 		if port != "" {
-			startURL += ":" + port
+			startURL = net.JoinHostPort(parsedURL.Hostname(), port)
 		}
-		Host += ":" + port
 	} else {
 		if userURL != "" {
 			// parse the url
@@ -190,9 +190,10 @@ func GetStartURL(userURL string) (string, error) {
 				return "", fmt.Errorf("Error parsing URL: " + err.Error())
 			}
 			if parsedURL.Scheme == "" {
-				startURL = path.Join(startURL, userURL)
+				baseURL.Path = path.Join(baseURL.Path, userURL)
+				startURL = baseURL.String()
 				// if the original URL had a trailing slash, add it back
-				if strings.HasSuffix(userURL, "/") {
+				if strings.HasSuffix(userURL, "/") && !strings.HasSuffix(startURL, "/") {
 					startURL = startURL + "/"
 				}
 			} else {

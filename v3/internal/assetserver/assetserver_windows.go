@@ -1,4 +1,8 @@
 package assetserver
 
-var Schema = "http"
-var Host = "wails.localhost"
+import "net/url"
+
+var baseURL = url.URL{
+	Scheme: "http",
+	Host:   "wails.localhost",
+}
