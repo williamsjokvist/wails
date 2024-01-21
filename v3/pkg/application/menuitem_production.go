@@ -1,4 +1,4 @@
-//go:build darwin && production && !devtools
+//go:build production && !devtools
 
 package application
 

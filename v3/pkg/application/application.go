@@ -101,7 +101,6 @@ func New(appOptions Options) *App {
 	srv, err := assetserver.NewAssetServer(opts)
 	if err != nil {
 		result.Logger.Error("Fatal error in application initialisation: " + err.Error())
-		os.Exit(1)
 	}
 
 	result.assets = srv
@@ -110,20 +109,17 @@ func New(appOptions Options) *App {
 	result.bindings, err = NewBindings(appOptions.Bind, appOptions.BindAliases)
 	if err != nil {
 		globalApplication.fatal("Fatal error in application initialisation: " + err.Error())
-		os.Exit(1)
 	}
 
 	result.plugins = NewPluginManager(appOptions.Plugins, srv)
 	err = result.plugins.Init()
 	if err != nil {
-		result.Quit()
-		os.Exit(1)
+		globalApplication.fatal("Fatal error in plugins initialisation: " + err.Error())
 	}
 
 	err = result.bindings.AddPlugins(appOptions.Plugins)
 	if err != nil {
 		globalApplication.fatal("Fatal error in application initialisation: " + err.Error())
-		os.Exit(1)
 	}
 
 	// Process keybindings
@@ -658,6 +654,7 @@ func (a *App) cleanup() {
 func (a *App) Quit() {
 	if a.impl != nil {
 		InvokeSync(a.impl.destroy)
+		a.postQuit()
 	}
 }
 

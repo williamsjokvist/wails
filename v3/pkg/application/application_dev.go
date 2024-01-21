@@ -8,10 +8,13 @@ import (
 	"time"
 )
 
+var devMode = false
+
 func (a *App) preRun() error {
 	// Check for frontend server url
 	frontendURL := assetserver.GetDevServerURL()
 	if frontendURL != "" {
+		devMode = true
 		// We want to check if the frontend server is running by trying to http get the url
 		// and if it is not, we wait 500ms and try again for a maximum of 10 times. If it is
 		// still not available, we return an error.
@@ -33,4 +36,15 @@ func (a *App) preRun() error {
 		a.fatal("unable to connect to frontend server. Please check it is running", "FRONTEND_DEVSERVER_URL", frontendURL)
 	}
 	return nil
+}
+
+func (a *App) postQuit() {
+	if devMode {
+		a.Logger.Info("The application has terminated, but the watcher is still running.")
+		a.Logger.Info("To terminate the watcher, press CTRL+C")
+	}
+}
+
+func (a *App) enableDevTools() {
+
 }
